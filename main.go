@@ -67,6 +67,7 @@ func sendToServerChan(msg string) error {
 		} else {
 			fmt.Println("Server酱响应:", resp)
 		}
+		time.Sleep(1 * time.Second)
 	}
 	return nil
 }
