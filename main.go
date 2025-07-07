@@ -38,6 +38,7 @@ type ApiResponse struct {
 type Config struct {
 	SendKeys []string `json:"sendkeys"`
 	Interval int      `json:"interval"`
+	FiterTge bool     `json:"fiterTge"`
 }
 
 // 读取配置文件
@@ -153,9 +154,15 @@ func fetchTokenPrice(token string) (float64, error) {
 }
 
 func getSendMsgAndSnapshot() (string, string) {
+	cfg, err := loadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	apiResp := getAirdrop()
 	msg := "| 项目 | 时间 | 积分 | 数量 | 阶段 | 价格(USD) |\n|---|---|---|---|---|---|\n"
 	snapshot := ""
+	isEmpty := true
 	for i, item := range apiResp.Airdrops {
 		amount, err := strconv.Atoi(item.Amount)
 		if err != nil {
@@ -164,6 +171,11 @@ func getSendMsgAndSnapshot() (string, string) {
 		}
 		// 比较日期是否是今天
 		if item.Date != time.Now().Format("2006-01-02") {
+			continue
+		}
+
+		if cfg.FiterTge && item.Type == "tge" {
+			fmt.Printf("过滤TGE: %+v\n", item)
 			continue
 		}
 
@@ -177,6 +189,10 @@ func getSendMsgAndSnapshot() (string, string) {
 		snapshot += fmt.Sprintf("%s|%s|%s|%s|%s|%d\n",
 			item.Token, item.Name, item.Date, item.Time, item.Amount, item.Phase)
 		apiResp.Airdrops[i] = item
+		isEmpty = false
+	}
+	if isEmpty {
+		return "", ""
 	}
 	return msg, snapshot
 }
