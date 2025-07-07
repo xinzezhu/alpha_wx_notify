@@ -16,3 +16,13 @@ linux: nohup ./alpha_wx_notify &
 
 window：双击打开
 
+config.json的配置：
+{
+    "sendkeys": [""], #sendkey
+    "interval": 5, # 间隔多少分钟检测一次
+    "fiterTge": true # 是否过滤tge活动
+}
+
+
+# 编译
+go build
