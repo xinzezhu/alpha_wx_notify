@@ -78,7 +78,8 @@ func getAirdrop() *ApiResponse {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 
 	req.Header.Set("accept", "*/*")
@@ -89,19 +90,22 @@ func getAirdrop() *ApiResponse {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 
 	var apiResp ApiResponse
 	err = json.Unmarshal(body, &apiResp)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 
 	for i, item := range apiResp.Airdrops {
