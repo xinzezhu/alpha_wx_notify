@@ -164,6 +164,10 @@ func getSendMsgAndSnapshot() (string, string) {
 	}
 
 	apiResp := getAirdrop()
+	if apiResp == nil {
+		// 处理错误，比如直接 return
+		return "", ""
+	}
 	msg := "| 项目 | 时间 | 积分 | 数量 | 阶段 | 价格(USD) |\n|---|---|---|---|---|---|\n"
 	snapshot := ""
 	isEmpty := true
