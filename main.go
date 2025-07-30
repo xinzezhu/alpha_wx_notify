@@ -14,20 +14,40 @@ import (
 	serverchan_sdk "github.com/easychen/serverchan-sdk-golang"
 )
 
+type StringOrNumber string
+
+func (son *StringOrNumber) UnmarshalJSON(data []byte) error {
+	// 尝试解析为字符串
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		*son = StringOrNumber(s)
+		return nil
+	}
+
+	// 尝试解析为数字
+	var num json.Number
+	if err := json.Unmarshal(data, &num); err == nil {
+		*son = StringOrNumber(num.String())
+		return nil
+	}
+
+	return fmt.Errorf("cannot unmarshal %s into StringOrNumber", data)
+}
+
 type Airdrop struct {
-	Token           string `json:"token"`
-	Name            string `json:"name"`
-	Date            string `json:"date"`
-	Time            string `json:"time"`
-	Points          string `json:"points"`
-	Amount          string `json:"amount"`
-	Type            string `json:"type"`
-	Phase           int    `json:"phase"`
-	Status          string `json:"status"`
-	SystemTimestamp int64  `json:"system_timestamp"`
-	Completed       bool   `json:"completed"`
-	ContractAddress string `json:"contract_address"`
-	ChainID         string `json:"chain_id"`
+	Token           string         `json:"token"`
+	Name            string         `json:"name"`
+	Date            string         `json:"date"`
+	Time            string         `json:"time"`
+	Points          StringOrNumber `json:"points"`
+	Amount          string         `json:"amount"`
+	Type            string         `json:"type"`
+	Phase           int            `json:"phase"`
+	Status          string         `json:"status"`
+	SystemTimestamp int64          `json:"system_timestamp"`
+	Completed       bool           `json:"completed"`
+	ContractAddress string         `json:"contract_address"`
+	ChainID         string         `json:"chain_id"`
 }
 
 type ApiResponse struct {
@@ -192,7 +212,7 @@ func getSendMsgAndSnapshot() (string, string) {
 			fmt.Printf("获取%s价格失败: %v\n", item.Token, err)
 			price = 0
 		}
-		msg += fmt.Sprintf("| %s(%s) | %s %s | %s | %s | %d | %.2f |\n",
+		msg += fmt.Sprintf("| %s(%s) | %s %s | %v | %s | %d | %.2f |\n",
 			item.Token, item.Name, item.Date, item.Time, item.Points, item.Amount, item.Phase, price*float64(amount))
 		snapshot += fmt.Sprintf("%s|%s|%s|%s|%s|%d\n",
 			item.Token, item.Name, item.Date, item.Time, item.Amount, item.Phase)
